@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 import pandas as pd
 import streamlit as st
 
-st.set_page_config(page_title="Phishing Link Checker", page_icon="🛡️", layout="wide")
+st.set_page_config(page_title="SafeLink-Detector", page_icon="🛡️", layout="wide")
 
 try:
     import phishing_checker as pc
@@ -58,7 +58,7 @@ def metric_value(metrics, key):
     value = metrics.get(key)
     return "—" if value is None else f"{float(value):.3f}"
 
-st.title("🛡️ Phishing Link Checker")
+st.title("🛡️ SafeLink-Detector")
 st.caption("Analyze a URL using a trained machine-learning model and inspect the signals behind its prediction.")
 
 signature = tuple((str(p), p.stat().st_mtime) for p in sorted(ART.glob("*.joblib"))) if ART.exists() else ()
@@ -67,18 +67,61 @@ if not loaded:
     st.error("No compatible model artifacts found. Run the training notebook and save models in ./artifacts.")
     st.stop()
 
+# Find best trained model based on F1 Score
+best_model_name = None
+best_model_f1 = None
+
+for model_path, model_bundle in loaded.items():
+    model_metrics = model_bundle.get("metrics", {})
+    
+    # Fallback to tuned_results.csv if metrics aren't stored in the bundle
+    if not model_metrics:
+        try:
+            perf = pd.read_csv(ART / "tuned_results.csv")
+            row = perf[perf["Model"] == model_bundle["name"]]
+            if not row.empty:
+                model_metrics = row.iloc[0].to_dict()
+        except Exception:
+            pass
+
+    f1 = model_metrics.get("F1 Score")
+
+    if f1 is not None:
+        f1 = float(f1)
+        if best_model_f1 is None or f1 > best_model_f1:
+            best_model_f1 = f1
+            best_model_name = model_bundle["name"]
+
+
 paths = list(loaded)
 default_path = str(pc.resolve_model_path(None))
 default_idx = next((i for i, p in enumerate(paths)
                     if Path(p).resolve() == Path(default_path).resolve()), 0)
 
 with st.sidebar:
+    
     st.header("Model")
-    selected_path = st.selectbox("Model used for this check", paths, index=default_idx,
-                                 format_func=display_name)
+    # Best model based on F1 Score
+    if best_model_name is not None:
+        st.success(
+            f"🏆 Best Model\n\n"
+            f"**{display_name(best_model_name)}**\n\n"
+            f"F1 Score: **{best_model_f1:.3f}**"
+        )
+
+    selected_path = st.selectbox(
+        "Model used for this check",
+        paths,
+        index=default_idx,
+        format_func=display_name
+    )
+
+    # selected_path = st.selectbox("Model used for this check", paths, index=default_idx,
+    #                              format_func=display_name)
     bundle = loaded[selected_path]
     st.caption(f"{len(bundle['features'])} live-aligned features")
     st.divider()
+    
     st.markdown("**Decision Thresholds**")
 
     threshold_df = pd.DataFrame({

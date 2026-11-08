@@ -138,30 +138,30 @@ with st.expander("Compare all trained models", expanded=False):
     except Exception:
         st.info("Run the notebook to generate tuned_results.csv.")
 
-# st.divider()
-# st.subheader("Check a website")
-# with st.form("url_check", clear_on_submit=False):
-#     url = st.text_input("Website URL", placeholder="https://example.com/login")
-#     submitted = st.form_submit_button("Analyze URL", type="primary", use_container_width=True)
+st.divider()
+st.subheader("Check a website")
+with st.form("url_check", clear_on_submit=False):
+    url = st.text_input("Website URL", placeholder="https://example.com/login")
+    submitted = st.form_submit_button("Analyze URL", type="primary", use_container_width=True)
 
-# if submitted:
-#     st.session_state.pop("last_result", None)
-#     if not url.strip():
-#         st.warning("Enter a URL to analyze.")
-#     elif is_private_target(url) and os.environ.get("ALLOW_PRIVATE_URLS") != "1":
-#         st.error("This address points to a private or local network and cannot be checked.")
-#     else:
-#         try:
-#             with st.spinner("Collecting URL, domain and page signals…"):
-#                 result = pc.analyse(url, bundle)
-#             st.session_state["last_result"] = result
-#             history = st.session_state.setdefault("history", [])
-#             history.insert(0, {"URL": result["url"][:70], "Verdict": result["verdict"]})
-#             del history[10:]
-#         except ValueError as exc:
-#             st.error(f"Invalid URL: {exc}")
-#         except Exception as exc:
-#             st.error(f"Could not analyze this URL: {exc}")
+if submitted:
+    st.session_state.pop("last_result", None)
+    if not url.strip():
+        st.warning("Enter a URL to analyze.")
+    elif is_private_target(url) and os.environ.get("ALLOW_PRIVATE_URLS") != "1":
+        st.error("This address points to a private or local network and cannot be checked.")
+    else:
+        try:
+            with st.spinner("Collecting URL, domain and page signals…"):
+                result = pc.analyse(url, bundle)
+            st.session_state["last_result"] = result
+            history = st.session_state.setdefault("history", [])
+            history.insert(0, {"URL": result["url"][:70], "Verdict": result["verdict"]})
+            del history[10:]
+        except ValueError as exc:
+            st.error(f"Invalid URL: {exc}")
+        except Exception as exc:
+            st.error(f"Could not analyze this URL: {exc}")
 
 # result = st.session_state.get("last_result")
 # if result:

@@ -237,24 +237,24 @@ if result:
                 for feature, value in result["features"].items()]
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
-# st.divider()
-# with st.expander("Recent checks"):
-#     history = st.session_state.get("history", [])
-#     if history:
-#         st.dataframe(pd.DataFrame(history), use_container_width=True, hide_index=True)
-#     else:
-#         st.caption("No checks yet.")
+st.divider()
+with st.expander("Recent checks"):
+    history = st.session_state.get("history", [])
+    if history:
+        st.dataframe(pd.DataFrame(history), use_container_width=True, hide_index=True)
+    else:
+        st.caption("No checks yet.")
 
-# with st.expander("How to interpret the result"):
-#     st.markdown("""
-#     - **Model prediction** is the classifier's literal `predict()` result: class `1` = Phishing and class `0` = Legitimate.
-#     - **ML phishing probability** is the selected model's `predict_proba()` estimate for class `1`. The UI uses the lower 35% operating threshold to make the probability decision more recall-oriented.
-#     - **Feature policy:** `-1` is phishing-like and `0` is suspicious. One `-1` or any `0` makes the feature assessment suspicious; **two or more `-1` values make it phishing**.
-#     - The **final verdict** is intentionally conservative: strong model probability or phishing-like feature evidence can raise the result to phishing, while suspicious evidence raises it to suspicious.
-#     - **Low risk** never means guaranteed safe.
-#     - **Recall** measures how many phishing websites in the held-out test set were caught. For security screening, this is especially important.
-#     - **Precision** measures how often a phishing warning is correct.
-#     - **AUC** measures ranking/separation ability; **F1** balances precision and recall; **MCC** is a balanced correlation score.
-#     - A model prediction is not proof that a website is safe. The training dataset is historical, and live pages may block automated checks or change after analysis.
-#     - The page is fetched for static HTML analysis; JavaScript is not executed. Never submit passwords or payment information to a link you do not trust.
-#     """)
+with st.expander("How to interpret the result"):
+    st.markdown("""
+    - **Model prediction** is the classifier's literal `predict()` result: class `1` = Phishing and class `0` = Legitimate.
+    - **ML phishing probability** is the selected model's `predict_proba()` estimate for class `1`. The UI uses the lower 35% operating threshold to make the probability decision more recall-oriented.
+    - **Feature policy:** `-1` is phishing-like and `0` is suspicious. One `-1` or any `0` makes the feature assessment suspicious; **two or more `-1` values make it phishing**.
+    - The **final verdict** is intentionally conservative: strong model probability or phishing-like feature evidence can raise the result to phishing, while suspicious evidence raises it to suspicious.
+    - **Low risk** never means guaranteed safe.
+    - **Recall** measures how many phishing websites in the held-out test set were caught. For security screening, this is especially important.
+    - **Precision** measures how often a phishing warning is correct.
+    - **AUC** measures ranking/separation ability; **F1** balances precision and recall; **MCC** is a balanced correlation score.
+    - A model prediction is not proof that a website is safe. The training dataset is historical, and live pages may block automated checks or change after analysis.
+    - The page is fetched for static HTML analysis; JavaScript is not executed. Never submit passwords or payment information to a link you do not trust.
+    """)

@@ -114,29 +114,29 @@ with st.sidebar:
     # st.caption("The model prediction and probability are shown separately from the final combined verdict.")
     # st.caption("Missing critical live signals can make the result inconclusive.")
 
-# st.subheader("Model performance")
-# metrics = bundle.get("metrics", {})
-# if not metrics:
-#     try:
-#         perf = pd.read_csv(ART / "tuned_results.csv").set_index("Model")
-#         metrics = perf.loc[bundle["name"]].to_dict()
-#     except Exception:
-#         metrics = {}
+st.subheader("Model performance")
+metrics = bundle.get("metrics", {})
+if not metrics:
+    try:
+        perf = pd.read_csv(ART / "tuned_results.csv").set_index("Model")
+        metrics = perf.loc[bundle["name"]].to_dict()
+    except Exception:
+        metrics = {}
 
-# metric_cols = st.columns(6)
-# for col, key in zip(metric_cols, METRIC_NAMES):
-#     col.metric(key, metric_value(metrics, key), help=METRIC_HELP[key])
+metric_cols = st.columns(6)
+for col, key in zip(metric_cols, METRIC_NAMES):
+    col.metric(key, metric_value(metrics, key), help=METRIC_HELP[key])
 
-# with st.expander("Compare all trained models", expanded=False):
-#     try:
-#         comparison = pd.read_csv(ART / "tuned_results.csv")
-#         keep = [c for c in ["Model"] + METRIC_NAMES if c in comparison.columns]
-#         st.dataframe(comparison[keep].style.format({c: "{:.3f}" for c in METRIC_NAMES
-#                                                     if c in keep}),
-#                      use_container_width=True, hide_index=True)
-#         st.caption("Metrics are measured on the held-out test set. Recall is the share of phishing links caught.")
-#     except Exception:
-#         st.info("Run the notebook to generate tuned_results.csv.")
+with st.expander("Compare all trained models", expanded=False):
+    try:
+        comparison = pd.read_csv(ART / "tuned_results.csv")
+        keep = [c for c in ["Model"] + METRIC_NAMES if c in comparison.columns]
+        st.dataframe(comparison[keep].style.format({c: "{:.3f}" for c in METRIC_NAMES
+                                                    if c in keep}),
+                     use_container_width=True, hide_index=True)
+        st.caption("Metrics are measured on the held-out test set. Recall is the share of phishing links caught.")
+    except Exception:
+        st.info("Run the notebook to generate tuned_results.csv.")
 
 # st.divider()
 # st.subheader("Check a website")

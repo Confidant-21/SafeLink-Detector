@@ -79,40 +79,40 @@ with st.sidebar:
     bundle = loaded[selected_path]
     st.caption(f"{len(bundle['features'])} live-aligned features")
     st.divider()
-    # st.markdown("**Decision Thresholds**")
+    st.markdown("**Decision Thresholds**")
 
-    # threshold_df = pd.DataFrame({
-    #     "Rule": [
-    #         "ML Phishing Probability",
-    #         "ML Low-Risk Boundary",
-    #         "Phishing-like Features (-1)",
-    #         "Suspicious Features (0)",
-    #         "Single -1 Feature"
-    #     ],
-    #     "Threshold": [
-    #         f"{pc.PHISH_THRESHOLD:.0%}",
-    #         f"{pc.LEGIT_THRESHOLD:.0%}",
-    #         "≥ 2",
-    #         "≥ 1",
-    #         "1"
-    #     ],
-    #     "Decision": [
-    #         "PHISHING",
-    #         "LOW RISK",
-    #         "PHISHING",
-    #         "SUSPICIOUS",
-    #         "SUSPICIOUS"
-    #     ]
-    # })
+    threshold_df = pd.DataFrame({
+        "Rule": [
+            "ML Phishing Probability",
+            "ML Low-Risk Boundary",
+            "Phishing-like Features (-1)",
+            "Suspicious Features (0)",
+            "Single -1 Feature"
+        ],
+        "Threshold": [
+            f"{pc.PHISH_THRESHOLD:.0%}",
+            f"{pc.LEGIT_THRESHOLD:.0%}",
+            "≥ 2",
+            "≥ 1",
+            "1"
+        ],
+        "Decision": [
+            "PHISHING",
+            "LOW RISK",
+            "PHISHING",
+            "SUSPICIOUS",
+            "SUSPICIOUS"
+        ]
+    })
 
-    # st.table(threshold_df)
+    st.table(threshold_df)
 
-    # st.caption(
-    #     "Final verdict uses the most conservative result from the ML probability, "
-    #     "feature policy, and independent security rules."
-    # )
-    # st.caption("The model prediction and probability are shown separately from the final combined verdict.")
-    # st.caption("Missing critical live signals can make the result inconclusive.")
+    st.caption(
+        "Final verdict uses the most conservative result from the ML probability, "
+        "feature policy, and independent security rules."
+    )
+    st.caption("The model prediction and probability are shown separately from the final combined verdict.")
+    st.caption("Missing critical live signals can make the result inconclusive.")
 
 st.subheader("Model performance")
 metrics = bundle.get("metrics", {})

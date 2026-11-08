@@ -163,79 +163,79 @@ if submitted:
         except Exception as exc:
             st.error(f"Could not analyze this URL: {exc}")
 
-# result = st.session_state.get("last_result")
-# if result:
-#     st.divider()
-#     verdict = result["verdict"]
-#     probability = result["phishing_probability"]
-#     if verdict == "PHISHING":
-#         st.error("🚫 High risk — likely phishing. Do not open or enter information.")
-#     elif verdict == "SUSPICIOUS":
-#         st.warning("⚠️ Suspicious link — multiple risk signals were detected. Do not enter credentials.")
-#     elif verdict == "LEGITIMATE":
-#         st.success("✅ Low risk based on the signals available. This is not a safety guarantee.")
-#     else:
-#         st.warning("⚠️ Inconclusive — too many live signals could not be measured. Do not assume this link is safe.")
+result = st.session_state.get("last_result")
+if result:
+    st.divider()
+    verdict = result["verdict"]
+    probability = result["phishing_probability"]
+    if verdict == "PHISHING":
+        st.error("🚫 High risk — likely phishing. Do not open or enter information.")
+    elif verdict == "SUSPICIOUS":
+        st.warning("⚠️ Suspicious link — multiple risk signals were detected. Do not enter credentials.")
+    elif verdict == "LEGITIMATE":
+        st.success("✅ Low risk based on the signals available. This is not a safety guarantee.")
+    else:
+        st.warning("⚠️ Inconclusive — too many live signals could not be measured. Do not assume this link is safe.")
 
-#     st.write("**Analyzed URL**")
-#     st.code(result["url"])
-#     if result["info"].get("final_url") and result["info"]["final_url"] != result["url"]:
-#         st.write("**Final destination after redirects**")
-#         st.code(result["info"]["final_url"])
+    st.write("**Analyzed URL**")
+    st.code(result["url"])
+    if result["info"].get("final_url") and result["info"]["final_url"] != result["url"]:
+        st.write("**Final destination after redirects**")
+        st.code(result["info"]["final_url"])
 
-#     if probability is not None:
-#         c1, c2, c3, c4 = st.columns(4)
-#         c1.metric("ML phishing probability", f"{probability:.1%}")
-#         c2.metric("Model prediction", result.get("raw_model_verdict", "—").title())
-#         c3.metric("ML probability decision", result.get("model_probability_verdict", "—").title())
-#         c4.metric("Final verdict", verdict.title())
-#         st.progress(min(max(float(probability), 0.0), 1.0),
-#                     text=f"Model-estimated phishing probability · {probability:.1%}")
+    if probability is not None:
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("ML phishing probability", f"{probability:.1%}")
+        c2.metric("Model prediction", result.get("raw_model_verdict", "—").title())
+        c3.metric("ML probability decision", result.get("model_probability_verdict", "—").title())
+        c4.metric("Final verdict", verdict.title())
+        st.progress(min(max(float(probability), 0.0), 1.0),
+                    text=f"Model-estimated phishing probability · {probability:.1%}")
 
-#         fc1, fc2, fc3 = st.columns(3)
-#         fc1.metric("Phishing-like (-1)", result.get("phishing_like_count", 0))
-#         fc2.metric("Suspicious (0)", result.get("suspicious_feature_count", 0))
-#         fc3.metric("Feature assessment", result.get("feature_verdict", "—").replace("_", " ").title())
-#         st.caption(
-#             f"Estimator predict(): {result.get('raw_model_verdict', '—')} · "
-#             f"Probability decision at {pc.DECISION_THRESHOLD:.0%}: {result.get('model_probability_verdict', '—')} · "
-#             f"Feature decision: {result.get('feature_verdict', '—')} · "
-#             f"Independent rule score: {result.get('risk_score', 0)}/100 · "
-#             f"Unavailable live signals: {len(result['unavailable_features'])}"
-#         )
+        fc1, fc2, fc3 = st.columns(3)
+        fc1.metric("Phishing-like (-1)", result.get("phishing_like_count", 0))
+        fc2.metric("Suspicious (0)", result.get("suspicious_feature_count", 0))
+        fc3.metric("Feature assessment", result.get("feature_verdict", "—").replace("_", " ").title())
+        st.caption(
+            f"Estimator predict(): {result.get('raw_model_verdict', '—')} · "
+            f"Probability decision at {pc.DECISION_THRESHOLD:.0%}: {result.get('model_probability_verdict', '—')} · "
+            f"Feature decision: {result.get('feature_verdict', '—')} · "
+            f"Independent rule score: {result.get('risk_score', 0)}/100 · "
+            f"Unavailable live signals: {len(result['unavailable_features'])}"
+        )
 
-#     st.subheader("Decision breakdown")
-#     st.info(
-#         f"**Model prediction:** {result.get('raw_model_verdict', '—')} "
-#         f"(class {result.get('raw_model_prediction', '—')}).  "
-#         f"**Phishing probability:** {('N/A' if probability is None else f'{probability:.1%}')}  "
-#         f"**Feature assessment:** {result.get('feature_verdict', '—')}. "
-#         "The final verdict is the most conservative result of the model probability, "
-#         "live-feature policy, and independent security rules."
-#     )
+    st.subheader("Decision breakdown")
+    st.info(
+        f"**Model prediction:** {result.get('raw_model_verdict', '—')} "
+        f"(class {result.get('raw_model_prediction', '—')}).  "
+        f"**Phishing probability:** {('N/A' if probability is None else f'{probability:.1%}')}  "
+        f"**Feature assessment:** {result.get('feature_verdict', '—')}. "
+        "The final verdict is the most conservative result of the model probability, "
+        "live-feature policy, and independent security rules."
+    )
 
-#     st.subheader("Why this verdict was assigned")
-#     if result.get("rule_reasons"):
-#         st.dataframe(pd.DataFrame(result["rule_reasons"]), use_container_width=True, hide_index=True)
-#     else:
-#         st.write("No additional rule-based risk indicators were found.")
+    st.subheader("Why this verdict was assigned")
+    if result.get("rule_reasons"):
+        st.dataframe(pd.DataFrame(result["rule_reasons"]), use_container_width=True, hide_index=True)
+    else:
+        st.write("No additional rule-based risk indicators were found.")
 
-#     st.subheader("Live model feature signals")
-#     if result["red_flags"]:
-#         flag_rows = [{"Feature": item["feature"], "Observed value": item["value"],
-#                       "Interpretation": item["meaning"]} for item in result["red_flags"]]
-#         st.dataframe(pd.DataFrame(flag_rows), use_container_width=True, hide_index=True)
-#     else:
-#         st.write("No -1 or 0 feature signals were returned by the live feature checks.")
+    st.subheader("Live model feature signals")
+    if result["red_flags"]:
+        flag_rows = [{"Feature": item["feature"], "Observed value": item["value"],
+                      "Interpretation": item["meaning"]} for item in result["red_flags"]]
+        st.dataframe(pd.DataFrame(flag_rows), use_container_width=True, hide_index=True)
+    else:
+        st.write("No -1 or 0 feature signals were returned by the live feature checks.")
 
-#     if result["unavailable_features"]:
-#         st.info("Could not measure: " + ", ".join(result["unavailable_features"]))
-#     with st.expander("Show all feature values"):
-#         rows = [{"Feature": feature,
-#                  "Value": ("Unavailable" if value is None else value),
-#                  "Meaning": pc.DESCRIPTIONS.get(feature, "Live website signal")}
-#                 for feature, value in result["features"].items()]
-#         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    if result["unavailable_features"]:
+        st.info("Could not measure: " + ", ".join(result["unavailable_features"]))
+    with st.expander("Show all feature values"):
+        rows = [{"Feature": feature,
+                 "Value": ("Unavailable" if value is None else value),
+                 "Meaning": pc.DESCRIPTIONS.get(feature, "Live website signal")}
+                for feature, value in result["features"].items()]
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
 # st.divider()
 # with st.expander("Recent checks"):

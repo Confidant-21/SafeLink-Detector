@@ -1,0 +1,6 @@
+Model,Best CV F1,Best Parameters,Search seconds
+SVM,0.9394594008836377,"{'model__C': np.float64(8.471801418819979), 'model__gamma': 'scale', 'model__kernel': 'rbf'}",1151.1
+KNN,0.9361911705095929,"{'model__n_neighbors': 24, 'model__p': 1, 'model__weights': 'distance'}",13.9
+Decision Tree,0.9304188775657869,"{'model__criterion': 'log_loss', 'model__max_depth': 14, 'model__max_features': None, 'model__min_samples_leaf': 2, 'model__min_samples_split': 25}",3.0
+Logistic Regression,0.913267658168811,"{'model__C': np.float64(0.0019517224641449498), 'model__solver': 'lbfgs'}",7.3
+Naive Bayes,0.7233102128994732,{'model__var_smoothing': np.float64(6.598711072054075e-07)},3.0

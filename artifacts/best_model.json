@@ -1,0 +1,47 @@
+{
+  "model": "SVM",
+  "best_params": {
+    "model__C": "8.471801418819979",
+    "model__gamma": "scale",
+    "model__kernel": "rbf"
+  },
+  "test_metrics": {
+    "Accuracy": 0.9502487562189055,
+    "AUC": 0.9860500008289261,
+    "Precision": 0.9493801652892562,
+    "Recall": 0.9377551020408164,
+    "F1 Score": 0.9435318275154004,
+    "MCC": 0.8991269346812871
+  },
+  "features": [
+    "having_IP_Address",
+    "URL_Length",
+    "Shortining_Service",
+    "having_At_Symbol",
+    "double_slash_redirecting",
+    "Prefix_Suffix",
+    "having_Sub_Domain",
+    "SSLfinal_State",
+    "Domain_registeration_length",
+    "Favicon",
+    "port",
+    "HTTPS_token",
+    "Request_URL",
+    "URL_of_Anchor",
+    "Links_in_tags",
+    "SFH",
+    "Submitting_to_email",
+    "Abnormal_URL",
+    "Redirect",
+    "on_mouseover",
+    "RightClick",
+    "popUpWidnow",
+    "Iframe",
+    "age_of_domain",
+    "DNSRecord"
+  ],
+  "target_mapping": {
+    "0": "Legitimate",
+    "1": "Phishing"
+  }
+}

@@ -1,560 +1,122 @@
 # SafeLink-Detector
 A Streamlit and ML-based web app that analyzes URLs in real time. It extracts link features and classifies them as Legitimate, Suspicious, or Phishing to instantly detect online security threats.
 
-The application analyzes a website URL using a trained phishing-classification model and combines:
+# 🛡️ Phishing Websites Classification
 
-1. **Machine-learning prediction**
-2. **Phishing probability**
-3. **Live URL/domain/page features**
-4. **Feature-level phishing and suspicious signals**
-5. **Independent security rules**
-6. **A conservative final verdict**
+## 1. Problem Statement
 
-The goal is not only to answer:
+Phishing websites are designed to deceive users into revealing sensitive information such as usernames, passwords, banking credentials, and personal information. Since phishing websites can closely resemble legitimate websites, manually identifying them is difficult and unreliable.
 
-> **"Is this website phishing?"**
+The objective of this project is to build a **machine-learning-based phishing website classification system** that can classify websites as either:
 
-but also to explain:
+- **Phishing**
+- **Legitimate**
 
-> **"What did the model predict, how confident was it, which website signals were suspicious, and why was the final verdict assigned?"**
+The project compares five different machine-learning algorithms and evaluates their performance using multiple classification metrics.
 
----
-
-## 📌 Features
-
-- 🔗 URL-based phishing detection
-- 🤖 Multiple trained ML models
-- 🏆 Best-model identification using **F1 Score**
-- 📊 Accuracy, AUC, Precision, Recall, F1 and MCC metrics
-- 📈 Phishing probability using `predict_proba()`
-- 🔍 Transparent feature-level analysis
-- ⚠️ Suspicious-feature detection
-- 🧠 Conservative final decision logic
-- 📋 Decision-threshold table in the dashboard
-- 🌐 Live website/domain signal extraction
-- 🔄 Redirect/final-destination inspection
-- 🚫 Private/local network protection
-- 📜 Recent URL analysis history
-- 📚 Expandable feature-value inspection
-- 🎨 Streamlit dashboard
-
----
-
-# 📂 Dataset
-
-## Phishing Websites Dataset
-
-The project uses the **Phishing Websites** dataset from the UCI Machine Learning Repository.
-
-**Dataset ID:** 327
-
-**Official dataset:**
-
-https://archive.ics.uci.edu/dataset/327/phishing
-
-The dataset was contributed by Rami Mohammad, Lee McCluskey and Fadi Thabtah and was donated to the UCI repository in 2015. It contains **11,055 website instances and 30 integer-valued features** and is designed for a binary classification task. The dataset contains no missing values according to UCI.
-
-The dataset was collected mainly from:
-
-- PhishTank archives
-- MillerSmiles archives
-- Google search operators
-
-The objective of the dataset is to identify characteristics that can help distinguish phishing websites from legitimate websites.
-
-### Dataset characteristics
-
-| Property | Value |
-|---|---|
-| Dataset | Phishing Websites |
-| Repository | UCI Machine Learning Repository |
-| Dataset ID | 327 |
-| Instances | 11,055 |
-| Features | 30 |
-| Feature type | Integer |
-| Task | Classification |
-| Missing values | No |
-| Domain | Computer Security |
-| Target | Website classification |
-
----
-
-## 🧩 Dataset Features
-
-The dataset contains 30 website-related features.
-
-Examples include:
-
-| Feature | Purpose |
-|---|---|
-| `having_ip_address` | Checks whether an IP address is used instead of a normal domain |
-| `url_length` | Evaluates URL length |
-| `shortining_service` | Detects URL-shortening services |
-| `having_at_symbol` | Checks for `@` in the URL |
-| `double_slash_redirecting` | Detects suspicious redirection patterns |
-| `prefix_suffix` | Examines prefixes/suffixes in the domain |
-| `having_sub_domain` | Checks subdomain characteristics |
-| `sslfinal_state` | Examines SSL/HTTPS characteristics |
-| `domain_registration_length` | Examines domain registration duration |
-| `favicon` | Checks favicon behavior |
-| `https_token` | Examines HTTPS-related tokens |
-| `request_url` | Examines external resource requests |
-| `url_of_anchor` | Examines anchor URLs |
-| `links_in_tags` | Examines links inside HTML tags |
-| `sfh` | Server form handler characteristics |
-| `submitting_to_email` | Detects forms submitting information to email |
-| `abnormal_url` | Detects abnormal URL characteristics |
-| `redirect` | Examines redirects |
-| `on_mouseover` | Checks mouse-over behavior |
-| `rightclick` | Checks right-click behavior |
-| `popupwindow` | Checks popup behavior |
-| `iframe` | Detects iframe usage |
-| `age_of_domain` | Examines domain age |
-| `dnsrecord` | Checks DNS record information |
-| `web_traffic` | Examines web traffic information |
-| `page_rank` | Uses page-rank-related information |
-| `google_index` | Checks search engine indexing |
-| `links_pointing_to_page` | Examines inbound links |
-| `statistical_report` | Uses statistical/reputation information |
-
-The official UCI variable table provides the complete feature list.
-
----
-
-# 🔢 Feature Encoding
-
-A key characteristic of this dataset is that its website features use discrete values.
-
-The project interprets the feature signals as:
-
-| Value | Meaning in this project |
-|---:|---|
-| `1` | Legitimate-like / positive signal |
-| `0` | Suspicious / uncertain signal |
-| `-1` | Phishing-like signal |
-
-This is important because the application does **not simply convert all features into binary values**.
-
-A `0` carries information and is treated as a suspicious signal.
-
----
-
-# 🏗️ System Architecture
-
-The application follows this general flow:
-
-```text
-                         USER
-                          │
-                          │ Enter URL
-                          ▼
-                  Streamlit Dashboard
-                          │
-                          ▼
-                   URL Validation
-                          │
-                          ▼
-              Private/Local URL Check
-                          │
-                          ▼
-                 Live Feature Extraction
-                          │
-              ┌───────────┴───────────┐
-              │                       │
-              ▼                       ▼
-       URL / Domain Signals      Page Signals
-              │                       │
-              └───────────┬───────────┘
-                          ▼
-                  Feature Vector
-                          │
-                          ▼
-                    ML Model
-                          │
-              ┌───────────┴───────────┐
-              │                       │
-              ▼                       ▼
-       model.predict()        predict_proba()
-              │                       │
-       Raw prediction          Phishing probability
-              │                       │
-              └───────────┬───────────┘
-                          ▼
-                 Feature Rule Engine
-                          │
-                          ▼
-                Independent Risk Rules
-                          │
-                          ▼
-                  Final Verdict
-                          │
-                          ▼
-                   Streamlit UI
-                          │
-                          ▼
-             Explanation + Evidence
-```
-
----
-
-# 🧠 How the Application Works
-
-## 1. User enters a URL
-
-The user enters a website such as:
-
-```text
-https://example.com/login
-```
-
-The application receives the URL through the Streamlit interface.
-
----
-
-## 2. URL validation
-
-The application first validates and normalizes the URL.
-
-The system also checks whether the destination resolves to a private, loopback, link-local, reserved or multicast address.
-
-Private/local targets are blocked by default to reduce the risk of using the application to probe internal networks.
-
-Private URL analysis can only be enabled explicitly through:
-
-```text
-ALLOW_PRIVATE_URLS=1
-```
-
----
-
-# 🔍 3. Live Feature Extraction
-
-The application extracts website characteristics from the URL, domain and page.
-
-These signals are converted into the feature representation expected by the trained model.
-
-Examples include:
-
-```text
-URL length
-IP address usage
-HTTPS characteristics
-Subdomain characteristics
-URL symbols
-Redirect behavior
-Domain information
-HTML/page characteristics
-DNS information
-```
-
-The goal is to recreate the feature representation used during model training as closely as possible.
-
----
-
-# 🤖 4. Machine Learning Prediction
-
-The selected trained model receives the extracted feature vector.
-
-Two different outputs are obtained.
-
-### Raw model prediction
-
-The application calls:
-
-```python
-model.predict(X)
-```
-
-This produces the model's direct classification.
-
-For example:
-
-```text
-Model prediction: PHISHING
-```
-
-or:
-
-```text
-Model prediction: LEGITIMATE
-```
-
-The UI displays this separately so that the user can see the model's literal prediction.
-
----
-
-# 📊 5. Phishing Probability
-
-The application also uses:
-
-```python
-model.predict_proba(X)
-```
-
-to obtain the estimated probability associated with the phishing class.
-
-Example:
-
-```text
-ML phishing probability: 78.4%
-```
-
-This is different from the raw prediction.
-
-For example, a model could produce:
-
-```text
-Model prediction: LEGITIMATE
-Phishing probability: 43%
-```
-
-The application therefore does not hide the model's uncertainty.
-
----
-
-# ⚖️ 6. ML Probability Decision
-
-The application uses an intentionally lower operating threshold to make phishing detection more recall-oriented.
-
-The current threshold is displayed in the dashboard under:
-
-```text
-Decision Thresholds
-```
-
-The dashboard shows:
-
-| Rule | Threshold | Decision |
-|---|---:|---|
-| ML Phishing Probability | 35% | PHISHING |
-| ML Low-Risk Boundary | 15% | LOW RISK |
-| Phishing-like Features (`-1`) | ≥ 2 | PHISHING |
-| Suspicious Features (`0`) | ≥ 1 | SUSPICIOUS |
-| Single `-1` Feature | 1 | SUSPICIOUS |
-
-The exact threshold values are controlled by the application's configuration and should be changed there rather than hard-coded into the Streamlit interface.
-
----
-
-# 🚨 7. Feature-Based Risk Assessment
-
-The application does not rely exclusively on the ML probability.
-
-It separately counts feature signals.
-
-### Phishing-like signals
-
-A feature value of:
-
-```text
--1
-```
-
-is considered a phishing-like signal.
-
-The current policy is:
-
-```text
-1 × -1 → SUSPICIOUS
-2+ × -1 → PHISHING
-```
-
-### Suspicious signals
-
-A feature value of:
-
-```text
-0
-```
-
-is treated as suspicious.
-
-Therefore:
-
-```text
-Any 0 → SUSPICIOUS
-```
-
-This allows the application to identify suspicious websites even when the ML classifier is not strongly confident.
-
----
-
-# 🛡️ 8. Independent Security Rules
-
-The application also evaluates additional security-oriented rules.
-
-These rules are intentionally kept separate from the model prediction.
-
-This gives the system multiple sources of evidence:
-
-```text
-ML Model
-    +
-ML Probability
-    +
-Feature Policy
-    +
-Independent Security Rules
-    ↓
-Final Verdict
-```
-
-This prevents the dashboard from misleading the user into thinking that one model output represents absolute truth.
-
----
-
-# 🎯 9. Final Verdict
-
-The final verdict is intentionally conservative.
-
-Possible outputs are:
-
-### 🟢 LEGITIMATE
-
-The available evidence indicates low risk.
-
-This does **not** mean that the website is guaranteed to be safe.
-
----
-
-### 🟡 SUSPICIOUS
-
-The application detected suspicious signals but does not have enough evidence to classify the website as clearly phishing.
-
-Recommended action:
-
-> Do not enter credentials or sensitive information.
-
----
-
-### 🔴 PHISHING
-
-The application has strong evidence indicating phishing behavior.
-
-Recommended action:
-
-> Do not open the website or enter credentials/payment information.
-
----
-
-### ⚠️ INCONCLUSIVE
-
-Too many live signals could not be collected reliably.
-
-The application avoids incorrectly declaring the website safe when important evidence is unavailable.
-
----
-
-# 🧾 Example Analysis
-
-A result can look conceptually like:
-
-```text
-Analyzed URL:
-https://example.com/account/verify
-
-ML phishing probability:
-62.4%
-
-Model prediction:
-LEGITIMATE
-
-ML probability decision:
-PHISHING
-
-Phishing-like features (-1):
-1
-
-Suspicious features (0):
-1
-
-Feature assessment:
-SUSPICIOUS
-
-Independent rule score:
-67/100
-
-Final verdict:
-SUSPICIOUS
-```
-
-This demonstrates an important property of the system:
-
-> **Model prediction ≠ probability decision ≠ final verdict**
-
-Each layer is displayed independently.
-
----
-
-# 🏆 Model Selection
-
-The application can contain multiple trained models.
-
-The dashboard displays the model performance using:
+The models are evaluated using:
 
 - Accuracy
 - AUC
 - Precision
 - Recall
 - F1 Score
-- MCC
+- Matthews Correlation Coefficient (MCC)
 
-The application identifies the **best model according to F1 Score**.
+The primary objective is to determine which model provides the best overall performance for phishing website detection.
 
-F1 is particularly useful for this application because it balances:
+---
+
+# 2. Dataset Description
+
+## Phishing Websites Dataset
+
+The project uses the **Phishing Websites** dataset from the **UCI Machine Learning Repository**.
+
+### Dataset Link
+
+https://archive.ics.uci.edu/dataset/327/phishing
+
+### Dataset Information
+
+| Property | Description |
+|---|---|
+| Dataset Name | Phishing Websites |
+| Repository | UCI Machine Learning Repository |
+| Dataset ID | 327 |
+| Number of Instances | 11,055 |
+| Number of Features | 30 |
+| Feature Type | Integer |
+| Task | Binary Classification |
+| Missing Values | None |
+
+The dataset contains website-related characteristics that can be used to distinguish phishing websites from legitimate websites.
+
+The features represent properties related to:
+
+- URL structure
+- Domain characteristics
+- HTTPS usage
+- Redirects
+- Website behavior
+- HTML characteristics
+- DNS information
+- Website traffic
+- Search-engine indexing
+- Page ranking
+- External links
+
+### Examples of Features
+
+| Feature | Description |
+|---|---|
+| `having_ip_address` | Indicates whether an IP address is used instead of a normal domain |
+| `url_length` | Represents the length of the website URL |
+| `shortining_service` | Indicates whether a URL shortening service is used |
+| `having_at_symbol` | Detects the presence of `@` in the URL |
+| `double_slash_redirecting` | Detects suspicious double-slash redirection |
+| `prefix_suffix` | Checks suspicious prefixes or suffixes in the domain |
+| `having_sub_domain` | Represents subdomain characteristics |
+| `sslfinal_state` | Represents SSL/HTTPS characteristics |
+| `domain_registration_length` | Represents domain registration duration |
+| `favicon` | Examines favicon behavior |
+| `request_url` | Examines external resource requests |
+| `url_of_anchor` | Examines anchor URLs |
+| `links_in_tags` | Examines links inside HTML tags |
+| `sfh` | Server form handler characteristics |
+| `submitting_to_email` | Detects forms submitting information through email |
+| `redirect` | Represents redirect behavior |
+| `iframe` | Detects iframe usage |
+| `age_of_domain` | Represents domain age |
+| `dnsrecord` | Represents DNS information |
+| `web_traffic` | Represents website traffic |
+| `page_rank` | Represents page-ranking information |
+| `google_index` | Indicates whether the website is indexed by Google |
+
+---
+
+# 3. GitHub Repository
+
+The complete project, including the source code, model training notebook, trained model artifacts, Streamlit application, requirements and documentation, is maintained in the GitHub repository.
+
+### GitHub Repository
+
+**Add your GitHub repository link here:**
 
 ```text
-Precision ↔ Recall
+https://github.com/<your-username>/<your-repository>
 ```
 
-where:
+The repository contains all the required project files and can be used to reproduce and run the application.
 
-**Precision**
-
-> Of the websites predicted as phishing, how many were actually phishing?
-
-**Recall**
-
-> Of the actual phishing websites, how many did the model detect?
-
-**F1 Score**
-
-> A harmonic balance between precision and recall.
-
-The dashboard displays the best-performing model at the top of the sidebar.
-
----
-
-# 📊 Model Performance Dashboard
-
-The application provides six primary evaluation metrics:
-
-| Metric | Meaning |
-|---|---|
-| Accuracy | Percentage of all test samples classified correctly |
-| AUC | Ability to separate phishing from legitimate websites |
-| Precision | Reliability of phishing warnings |
-| Recall | Percentage of phishing websites detected |
-| F1 Score | Balance between precision and recall |
-| MCC | Balanced correlation-based classification metric |
-
-The application also provides a comparison table containing all trained models.
-
----
-
-# 📁 Project Structure
-
-A typical project structure is:
+### Repository Structure
 
 ```text
-Phishing_Link_Checker_Improved/
+Phishing_Link_Checker/
 │
 ├── app.py
-│
 ├── phishing_checker.py
-│
 ├── requirements.txt
-│
 ├── README.md
 │
 ├── artifacts/
@@ -567,688 +129,368 @@ Phishing_Link_Checker_Improved/
 
 ---
 
-# 📜 Script Responsibilities
+# 4. Models Used
 
-## `app.py`
+Five machine-learning classification models were trained and evaluated on the phishing websites dataset.
 
-`app.py` is the Streamlit presentation and application-control layer.
+The following models were compared:
 
-It handles:
+1. **Logistic Regression**
+2. **Decision Tree**
+3. **K-Nearest Neighbors (KNN)**
+4. **Naive Bayes**
+5. **Support Vector Machine (SVM)**
 
-- Streamlit UI
-- URL input
-- Model selection
-- Dataset information
-- Threshold display
-- Model performance display
-- URL validation
-- Analysis execution
-- Result visualization
-- Recent analysis history
-- Feature tables
-- Explanation of final verdict
-
-It does **not** contain the complete phishing-detection logic.
-
-Instead, it calls the functionality implemented in:
-
-```text
-phishing_checker.py
-```
+Each model was evaluated using the same test dataset and the same evaluation metrics.
 
 ---
 
-# 🧠 `phishing_checker.py`
+## Evaluation Metrics
 
-This is the main detection engine.
+### Accuracy
 
-It is responsible for tasks such as:
+Accuracy measures the percentage of total predictions that were classified correctly.
 
-- Loading trained models
-- Resolving the selected model
-- Extracting website features
-- Preparing model input
-- Running model prediction
-- Calculating phishing probability
-- Applying feature-level rules
-- Applying independent security rules
-- Producing the structured analysis result
+```text
+Accuracy = Correct Predictions / Total Predictions
+```
 
-The Streamlit application consumes this result and presents it to the user.
+A higher value indicates better overall classification accuracy.
+
+### AUC
+
+AUC (Area Under the ROC Curve) measures the model's ability to distinguish between phishing and legitimate websites.
+
+A value closer to **1.0** indicates better discrimination.
+
+### Precision
+
+Precision measures how reliable the model's phishing predictions are.
+
+```text
+Precision = TP / (TP + FP)
+```
+
+In this project:
+
+> Of the websites predicted as phishing, how many were actually phishing?
+
+High precision means fewer legitimate websites are incorrectly flagged as phishing.
+
+### Recall
+
+Recall measures how many actual phishing websites were successfully detected.
+
+```text
+Recall = TP / (TP + FN)
+```
+
+In this project:
+
+> Of all actual phishing websites, how many did the model identify?
+
+High recall is particularly important for phishing detection because missing an actual phishing website can be a serious security risk.
+
+### F1 Score
+
+F1 Score provides a balance between precision and recall.
+
+```text
+F1 = 2 × (Precision × Recall) / (Precision + Recall)
+```
+
+A higher F1 Score indicates a better balance between detecting phishing websites and avoiding false alarms.
+
+### MCC
+
+Matthews Correlation Coefficient (MCC) provides a balanced evaluation of binary classification performance.
+
+Its range is:
+
+```text
+-1 → Completely incorrect
+ 0 → Random performance
++1 → Perfect prediction
+```
+
+A value closer to **1** indicates stronger overall classification quality.
 
 ---
 
-# 🤖 Model Artifacts
+# 5. Model Comparison
 
-The trained models are stored inside:
+The following table presents the evaluation results for all five models.
 
-```text
-artifacts/
-```
-
-The application searches this directory for:
-
-```text
-*.joblib
-```
-
-Each compatible model artifact can contain information such as:
-
-```text
-Model
-Features
-Metrics
-Training configuration
-```
-
-The application loads the available model artifacts dynamically.
-
-Therefore, a newly trained compatible model can be added to the artifacts directory without redesigning the Streamlit interface.
+| ML Model | Accuracy | AUC | Precision | Recall | F1 | MCC |
+|---|---:|---:|---:|---:|---:|---:|
+| Logistic Regression | 0.920 | 0.969 | 0.921 | 0.896 | 0.908 | 0.838 |
+| Decision Tree | 0.937 | 0.981 | 0.926 | 0.932 | 0.929 | 0.872 |
+| KNN | 0.944 | 0.986 | 0.957 | 0.914 | 0.935 | 0.887 |
+| Naive Bayes | 0.679 | 0.962 | 0.581 | **0.997** | 0.734 | 0.493 |
+| Support Vector Machine | **0.950** | **0.986** | 0.949 | 0.938 | **0.944** | **0.899** |
 
 ---
 
-# 📊 `tuned_results.csv`
+# 6. Observations on Model Performance
 
-The file:
+| ML Model | Observation about Model Performance |
+|---|---|
+| **Logistic Regression** | Achieved **92.0% accuracy** and an **F1 score of 0.908**. Precision (0.921) and recall (0.896) are reasonably balanced. It provides a reliable baseline but performs below Decision Tree, KNN, and SVM. |
+| **Decision Tree** | Achieved **93.7% accuracy** and an **F1 score of 0.929**. Precision (0.926) and recall (0.932) are well balanced. Its AUC of 0.981 shows strong ability to distinguish phishing from legitimate websites. |
+| **KNN** | Achieved **94.4% accuracy** and an **F1 score of 0.935**. It has the **highest precision (0.957)** among the five models, meaning its phishing predictions are highly reliable. Its AUC of 0.986 is also among the highest. |
+| **Naive Bayes** | Achieved an extremely high **recall of 0.997**, meaning it detected almost all phishing websites. However, its precision is only **0.581**, resulting in many false positives. Its accuracy (0.679), F1 (0.734), and MCC (0.493) are the lowest overall. |
+| **Support Vector Machine** | Achieved the **highest accuracy (0.950), F1 score (0.944), and MCC (0.899)**. Its precision (0.949) and recall (0.938) are also highly balanced. Its AUC of 0.986 is tied with KNN for the highest value, making SVM the strongest overall model. |
+
+## Overall Winner
+
+| Criteria | Best Model | Score |
+|---|---|---:|
+| Accuracy | **Support Vector Machine** | **0.950** |
+| AUC | **KNN / Support Vector Machine** | **0.986** |
+| Precision | **KNN** | **0.957** |
+| Recall | **Naive Bayes** | **0.997** |
+| F1 Score | **Support Vector Machine** | **0.944** |
+| MCC | **Support Vector Machine** | **0.899** |
+
+### 🏆 Overall Winner: Support Vector Machine
+
+**Support Vector Machine (SVM)** is the overall winner for this dataset. It provides the best balance between precision and recall, achieving the highest **F1 Score of 0.944**, along with the highest accuracy and MCC.
+
+Although Naive Bayes has the highest recall (0.997), its low precision (0.581) causes many legitimate websites to be incorrectly classified as phishing. KNN is the closest competitor to SVM, but SVM achieves a higher F1 score and stronger overall performance.
+
+Therefore, **SVM is selected as the best-performing model for phishing website classification.**
+---
+
+# 7. Overall Winner for the Dataset
+
+## 🏆 Support Vector Machine (SVM)
+
+Based on the evaluation results, **Support Vector Machine is the overall winner for this dataset**.
+
+SVM achieves the highest F1 Score:
 
 ```text
-artifacts/tuned_results.csv
+F1 Score = 0.944
 ```
 
-contains model-comparison results.
-
-It is used by the dashboard to display metrics for trained models when those metrics are not already embedded inside the model artifact.
-
-Typical columns include:
+It also achieves the highest accuracy and MCC:
 
 ```text
-Model
-Accuracy
-AUC
-Precision
-Recall
-F1 Score
-MCC
+Accuracy = 0.950
+MCC      = 0.899
 ```
+
+Its AUC of **0.986** is tied with KNN for the highest value.
+
+### Overall Model Ranking
+
+| Rank | Model | F1 Score | Overall Performance |
+|---:|---|---:|---|
+| 🥇 1 | **Support Vector Machine** | **0.944** | Best overall |
+| 🥈 2 | **KNN** | **0.935** | Excellent |
+| 🥉 3 | **Decision Tree** | **0.929** | Very good |
+| 4 | Logistic Regression | 0.908 | Good baseline |
+| 5 | Naive Bayes | 0.734 | High recall but many false positives |
+
+### Why SVM is the Winner
+
+For phishing detection, relying only on accuracy is not sufficient.
+
+The model should:
+
+- Correctly detect phishing websites
+- Avoid incorrectly flagging legitimate websites
+- Maintain a good balance between precision and recall
+
+SVM provides this balance better than the other models.
+
+Although Naive Bayes achieves the highest recall (**0.997**), its precision is only **0.581**, meaning that many legitimate websites are incorrectly classified as phishing.
+
+KNN is the closest competitor to SVM, with an F1 score of **0.935** and precision of **0.957**. However, SVM achieves a higher F1 score, accuracy, recall and MCC.
+
+Therefore:
+
+> **Support Vector Machine is selected as the overall winning model for the Phishing Websites dataset.**
 
 ---
 
-# 🔄 Complete Data Flow
+# 8. Conclusion
 
-The complete runtime data flow is:
+The comparison of five machine-learning algorithms demonstrates that different models provide different trade-offs for phishing website detection.
 
-```text
-                     User URL
-                        │
-                        ▼
-                 app.py / Streamlit
-                        │
-                        ▼
-                 URL validation
-                        │
-                        ▼
-             Private target protection
-                        │
-                        ▼
-              pc.analyse(url, bundle)
-                        │
-                        ▼
-              phishing_checker.py
-                        │
-                        ▼
-              Feature extraction
-                        │
-                        ▼
-                 Feature vector
-                        │
-          ┌─────────────┴─────────────┐
-          ▼                           ▼
-     ML prediction              Rule analysis
-     predict()                  -1 / 0 signals
-          │                           │
-          ▼                           ▼
-   Raw class                  Feature assessment
-          │                           │
-          ▼                           │
-   predict_proba()                  │
-          │                           │
-          ▼                           ▼
- Phishing probability        Independent rules
-          │                           │
-          └─────────────┬─────────────┘
-                        ▼
-                 Decision engine
-                        │
-                        ▼
-                  Final verdict
-                        │
-                        ▼
-                 Result dictionary
-                        │
-                        ▼
-                 Streamlit dashboard
-                        │
-        ┌───────────────┼────────────────┐
-        ▼               ▼                ▼
-    Probability      Features        Explanation
-        │               │                │
-        └───────────────┴────────────────┘
-                        ▼
-                   User result
-```
+- **Logistic Regression** provides a strong baseline.
+- **Decision Tree** provides balanced performance.
+- **KNN** provides excellent precision and strong overall performance.
+- **Naive Bayes** achieves exceptional recall but produces many false positives.
+- **SVM** provides the best overall balance across the evaluation metrics.
+
+Therefore, based on the experimental results, **SVM is the recommended model for this project**.
+
+The final selection is primarily supported by its **highest F1 Score of 0.944**, combined with the highest accuracy and MCC.
 
 ---
 
-# ▶️ Installation
+# 9. Application
 
-## 1. Clone/download the project
+The trained models are integrated into a Streamlit-based phishing link checker.
 
-```bash
-git clone <repository-url>
-cd Phishing_Link_Checker_Improved
-```
+The application allows a user to enter a URL and inspect:
 
-Or extract the project ZIP and enter the project directory.
+- Model prediction
+- Phishing probability
+- Probability-based decision
+- Phishing-like feature count
+- Suspicious feature count
+- Feature assessment
+- Independent security rules
+- Final verdict
+- Individual feature explanations
 
----
-
-## 2. Create a virtual environment
-
-### Linux/macOS
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-```
-
-### Windows
-
-```powershell
-python -m venv .venv
-.venv\Scripts\activate
-```
+The application therefore provides not only a classification but also an explanation of the evidence behind the decision.
 
 ---
 
-## 3. Install dependencies
+# 10. How to Run the Application
+
+## Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-# ▶️ Running the Application
-
-Start Streamlit with:
+## Run Streamlit
 
 ```bash
 streamlit run app.py
 ```
 
-Streamlit will display the local dashboard URL, normally:
+The application will open in the browser at:
 
 ```text
 http://localhost:8501
 ```
 
-Open that address in a browser.
-
 ---
 
-# 🖥️ Using the Application
-
-## Step 1 — Select a model
-
-Use the sidebar:
+# 11. Application Data Flow
 
 ```text
-Model used for this check
+User enters URL
+        │
+        ▼
+URL Validation
+        │
+        ▼
+Live Feature Extraction
+        │
+        ▼
+Feature Vector
+        │
+        ▼
+Selected ML Model
+        │
+        ├───────────────┐
+        ▼               ▼
+model.predict()    predict_proba()
+        │               │
+        ▼               ▼
+Raw Prediction     Phishing Probability
+        │               │
+        └───────┬───────┘
+                ▼
+       Feature Rule Analysis
+                │
+                ▼
+       Independent Risk Rules
+                │
+                ▼
+          Final Verdict
+                │
+                ▼
+       Streamlit Dashboard
 ```
 
-The application also displays the model with the highest F1 score.
+The dashboard intentionally displays the **raw model prediction**, **probability**, and **final verdict** separately so that the user can understand how the final decision was reached.
 
 ---
 
-## Step 2 — Review the dataset
-
-The sidebar provides information about the dataset:
-
-```text
-Phishing Websites
-UCI Machine Learning Repository
-```
-
-The dataset link points to the official UCI repository:
-
-https://archive.ics.uci.edu/dataset/327/phishing
-
----
-
-## Step 3 — Review decision thresholds
-
-The dashboard displays the application's current decision policy in tabular form.
-
-This makes the decision system transparent before a URL is analyzed.
-
----
-
-## Step 4 — Enter a URL
-
-Enter a URL into:
-
-```text
-Website URL
-```
-
-Example:
-
-```text
-https://example.com
-```
-
-Then click:
-
-```text
-Analyze URL
-```
-
----
-
-# 🔎 Understanding the Result
-
-After analysis, the application displays:
-
-### 1. ML phishing probability
-
-Example:
-
-```text
-73.5%
-```
-
-This represents the model's estimated probability for the phishing class.
-
----
-
-### 2. Model prediction
-
-This is the literal output of:
-
-```python
-model.predict()
-```
-
-For example:
-
-```text
-Phishing
-```
-
----
-
-### 3. ML probability decision
-
-This is the classification obtained after applying the configured probability threshold.
-
----
-
-### 4. Feature assessment
-
-This is based on the extracted `-1` and `0` signals.
-
----
-
-### 5. Final verdict
-
-This is the application's combined conservative decision.
-
----
-
-# 📋 Feature Evidence
-
-The application displays suspicious feature signals in a table.
-
-Example:
-
-| Feature | Observed Value | Interpretation |
-|---|---:|---|
-| `having_ip_address` | -1 | Phishing-like signal |
-| `url_length` | 0 | Suspicious signal |
-| `https_token` | 1 | Legitimate-like signal |
-
-The user can also expand:
-
-```text
-Show all feature values
-```
-
-to inspect the complete feature vector.
-
----
-
-# ⚠️ Important Limitations
-
-## 1. The model is trained on historical data
-
-The UCI dataset represents websites and features collected for the dataset's construction.
-
-The modern web changes continuously.
-
-Therefore:
-
-> High model confidence does not guarantee that a website is safe.
-
----
-
-## 2. Live feature extraction can fail
-
-Websites can:
-
-- Block automated requests
-- Require JavaScript
-- Change their content
-- Use anti-bot protection
-- Return different content depending on location
-- Become unavailable
-- Change after the analysis
-
-When important signals cannot be collected, the application can return:
-
-```text
-INCONCLUSIVE
-```
-
-rather than incorrectly claiming that the website is safe.
-
----
-
-## 3. JavaScript is not executed
-
-The application performs static analysis of retrieved page content.
-
-It does **not** execute arbitrary JavaScript from the target website.
-
-This limits the ability to detect phishing techniques that only appear after browser-side execution.
-
----
-
-## 4. A legitimate website can still be compromised
-
-A model may classify a website as low risk even if:
-
-- The site has recently been compromised
-- The phishing content is hidden
-- The page changes after analysis
-- The malicious behavior depends on browser execution
-
-Therefore:
-
-> **LEGITIMATE means low risk according to the available evidence, not guaranteed safe.**
-
----
-
-# 🔐 Security Considerations
-
-Never enter:
-
-- Passwords
-- Credit card information
-- Banking credentials
-- OTPs
-- API keys
-- Personal authentication information
-
-into a website simply because this application classified it as legitimate.
-
-The application is a **phishing-risk analysis tool**, not a security guarantee.
-
----
-
-# 🧪 Testing
-
-For testing the application, use known safe URLs or controlled test URLs.
-
-A useful test set should contain:
-
-```text
-Legitimate URLs
-        +
-Suspicious URLs
-        +
-Phishing-pattern test URLs
-```
-
-The expected result should be compared against:
-
-```text
-Model prediction
-Probability
-Feature assessment
-Final verdict
-```
-
-rather than only checking the final label.
-
----
-
-# 🧪 Example Test Workflow
-
-```text
-Input URL
-    │
-    ▼
-Extract features
-    │
-    ▼
-Run trained model
-    │
-    ├── Prediction = 0
-    └── Probability = 0.18
-    │
-    ▼
-Evaluate feature signals
-    │
-    ├── -1 count = 1
-    └── 0 count = 2
-    │
-    ▼
-Feature assessment = SUSPICIOUS
-    │
-    ▼
-Apply independent security rules
-    │
-    ▼
-Final verdict = SUSPICIOUS
-```
-
-This demonstrates why the application provides multiple outputs instead of exposing only one classification.
-
----
-
-# 📈 Why F1 Score Is Used for the Best Model
-
-Accuracy alone can be misleading in security classification.
-
-For example, a model could achieve high accuracy while missing a significant number of phishing websites.
-
-Phishing detection needs to consider both:
-
-```text
-False positives
-        +
-False negatives
-```
-
-F1 Score provides a balance between precision and recall.
-
-The application therefore identifies:
-
-```text
-Best Model = Model with highest F1 Score
-```
-
-while still displaying the other metrics for comparison.
-
----
-
-# 📚 Project Design Philosophy
-
-The project follows three important principles.
-
-## 1. Transparency
-
-Instead of showing:
-
-```text
-Result: PHISHING
-```
-
-the application explains:
-
-```text
-Model prediction
-        +
-Probability
-        +
-Feature signals
-        +
-Security rules
-        ↓
-Final verdict
-```
-
----
-
-## 2. Conservative security decisions
-
-When different evidence sources disagree, the system avoids blindly trusting the most optimistic prediction.
-
-Suspicious evidence can therefore increase the final risk classification.
-
----
-
-## 3. Explainability
-
-The application exposes the individual website signals that contributed to the decision.
-
-This makes the system easier to demonstrate, debug and evaluate than a black-box:
-
-```text
-URL → label
-```
-
-pipeline.
-
----
-
-# 📦 Main Technologies
+# 12. Technologies Used
 
 | Technology | Purpose |
 |---|---|
-| Python | Core implementation |
-| Streamlit | Interactive web dashboard |
-| Pandas | Data processing and tables |
-| Scikit-learn | Machine-learning models and metrics |
-| Joblib | Model serialization |
-| Requests / HTTP tooling | Live website analysis |
-| UCI Dataset | Training/evaluation data |
+| Python | Core programming language |
+| Pandas | Data processing |
+| Scikit-learn | Machine learning |
+| Joblib | Model persistence |
+| Streamlit | Web application |
+| UCI ML Repository | Dataset |
 
 ---
 
-# 📜 Dataset Citation
+# 13. Project Structure
 
-The project uses the **Phishing Websites** dataset from the UCI Machine Learning Repository.
+```text
+Phishing_Link_Checker/
+│
+├── app.py
+├── phishing_checker.py
+├── requirements.txt
+├── README.md
+│
+├── artifacts/
+│   ├── *.joblib
+│   └── tuned_results.csv
+│
+└── notebooks/
+    └── model_training.ipynb
+```
 
-> Mohammad, R. & McCluskey, L. (2012). *Phishing Websites* [Dataset]. UCI Machine Learning Repository. DOI: 10.24432/C51W2X.
+---
 
-Official repository:
+# 14. Limitations
+
+The model is trained on a historical phishing website dataset. Website behavior can change over time, and a website classified as legitimate by the model is not guaranteed to be safe.
+
+Live website analysis can also be affected by:
+
+- Website downtime
+- Anti-bot protection
+- DNS failures
+- Redirects
+- Dynamic content
+- JavaScript-dependent behavior
+- Changes in website structure
+
+Therefore, the application should be considered a **machine-learning-based phishing risk assessment tool**, not a replacement for professional security software.
+
+---
+
+# 15. References
+
+### UCI Machine Learning Repository
+
+**Phishing Websites Dataset**
 
 https://archive.ics.uci.edu/dataset/327/phishing
 
-The dataset is licensed under **CC BY 4.0** according to UCI.
+### Dataset Citation
+
+Mohammad, R., McCluskey, L., & Thabtah, F. *Phishing Websites*. UCI Machine Learning Repository.
 
 ---
 
-# ⚖️ Disclaimer
+## 🏁 Final Result
 
-This project is intended for:
+**Overall Winner: Support Vector Machine (SVM)**
 
-- Educational purposes
-- Machine-learning experimentation
-- Phishing detection research
-- Demonstration of explainable classification
-- Security-awareness experimentation
+**Best F1 Score: 0.944**
 
-It should not be treated as a replacement for:
+**Accuracy: 95.0%**
 
-- Browser security systems
-- Enterprise security gateways
-- Threat-intelligence platforms
-- Antivirus/EDR systems
-- Professional security analysis
+**AUC: 98.6%**
 
-A classification of **LEGITIMATE** does not guarantee that a website is safe.
+**Precision: 94.9%**
 
----
+**Recall: 93.8%**
 
-# 🚀 Future Improvements
-
-Potential improvements include:
-
-- Real-time threat-intelligence integration
-- URL reputation APIs
-- Browser extension integration
-- Screenshot-based phishing detection
-- HTML/DOM deep analysis
-- JavaScript behavioral analysis
-- Explainable AI / SHAP visualizations
-- Model monitoring
-- Detection drift monitoring
-- Automated model retraining
-- Ensemble model predictions
-- Confidence calibration
-- URL history and analytics
-- API deployment
-- Docker deployment
-
----
-
-# 👨‍💻 Project Summary
-
-The Phishing Link Checker combines a trained machine-learning classifier with live website analysis and rule-based security checks.
-
-The key distinction is that the system does not treat the ML model as an unquestionable authority.
-
-Instead, it exposes:
-
-```text
-                  WEBSITE
-                     │
-                     ▼
-             FEATURE EXTRACTION
-                     │
-                     ▼
-             ┌───────────────┐
-             │  ML MODEL     │
-             └───────┬───────┘
-                     │
-          ┌──────────┴──────────┐
-          ▼                     ▼
-     Prediction            Probability
-          │                     │
-          └──────────┬──────────┘
-                     ▼
-             FEATURE POLICIES
-                     │
-                     ▼
-             SECURITY RULES
-                     │
-                     ▼
-               FINAL VERDICT
-                     │
-                     ▼
-             EXPLAINABLE RESULT
-```
-
-This architecture makes the application suitable not only for predicting phishing websites, but also for demonstrating **how machine-learning predictions can be combined with transparent security rules and human-readable evidence**.
+**MCC: 89.9%**
